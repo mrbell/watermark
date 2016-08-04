@@ -155,15 +155,10 @@ class WaterMark(Magics):
         packages = pkgs.split(',')
 
         for p in packages:
-            if p not in sys.modules:
-                raise PackageNotFoundError('Package %s not found.' % p)
-
-            if hasattr(sys.modules[p], '__version__'):
-                version_str = sys.modules[p].__version__
-            elif hasattr(sys.modules[p], 'version'):
-                version_str = sys.modules[p].version
-            else:
-                version_str = 'n/a'
+            version_str = subprocess.check_output(
+                '''python -c "import pkg_resources as pr; print(pr.get_distribution('{:}'))"'''.format(p),
+                shell=True
+            ).rstrip().split()[1]
 
             self.out += '\n%s %s' % (p, version_str)
 
